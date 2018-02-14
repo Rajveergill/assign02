@@ -1,0 +1,77 @@
+service: serverless-rest-api
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-1
+  environment:
+    DYNAMODB_TABLE: 'RECIPE'
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:us-east-1:*:*"
+
+functions:
+  create:
+    handler: RECIPE/create.create
+    events:
+      - http:
+          path: RECIPE
+          method: post
+          cors: true
+
+  list:
+    handler: RECIPE/list.list
+    events:
+      - http:
+          path: RECIPE
+          method: get
+          cors: true
+
+  get:
+    handler: RECIPE/get.get
+    events:
+      - http:
+          path: RECIPE/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: RECIPE/update.update
+    events:
+      - http:
+          path: RECIPE/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: RECIPE/delete.delete
+    events:
+      - http:
+          path: RECIPE/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    RECIPEDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: 'RECIPE'
